@@ -24,10 +24,10 @@ notify_json() {
 }
 
 backup_dir=/mnt/Data/
-export RESTIC_PASSWORD_FILE='/home/leeyw/.restic_pass'
+export RESTIC_PASSWORD_FILE="$HOME/.restic_pass"
 export RESTIC_REPOSITORY='sftp:home-backup-ubuntu:/srv/restic-repo'
 
-# parent=$(restic --json snapshots --latest 1 -H "$(hostname -s)" | jq -r 'max_by(.time) | .id')
+parent=$(restic --json snapshots --latest 1 -H "$(hostname -s)" | jq -r 'max_by(.time) | .id')
 
 if [ "$parent" != 'null' ]; then
     P1="--parent"
@@ -35,16 +35,26 @@ if [ "$parent" != 'null' ]; then
 fi
 
 # backup_files="$(fdfind -H0 -t f -t l --one-file-system --base-directory "$backup_dir")"
-json_stream=/tmp/backup-json-pipe
-if ! [ -p "$json_stream" ]; then
-    json_stream=/dev/null
-fi
+# json_stream=/tmp/backup-json-pipe
+# if ! [ -p "$json_stream" ]; then
+#     json_stream=/dev/null
+# fi
 
 # Generate a log for backup
+# restic --json backup "$P1" "$P2" --files-from-raw \
+#     <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir") \
+#     2>&1 \
+#     1>$json_stream | notify_json
+# Send empty line
+# echo -e "\n" > $json_stream
 
-restic --json backup -n "$P1" "$P2" --files-from-raw \
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+logfile="$SCRIPT_DIR/log/backup.logs"
+
+echo "" >> "$logfile"
+date >> "$logfile"
+restic backup "$P1" "$P2" --files-from-raw \
     <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir") \
     2>&1 \
-    1>$json_stream | notify_json
-# Send empty line
-echo -e "\n" > $json_stream
+    1>>"$logfile" | notify_json
