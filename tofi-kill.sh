@@ -6,11 +6,10 @@ selected="$(ps -u "$USER" -o pid,ppid,bsdstart,comm,rss --no-headers | \
     tofi --width 650 --prompt-text "Kill: ")"
 
 if [[ -n $selected ]]; then
-    # Extract just the PID (first column) and Command (third column) for the prompt
     selpid=$(echo "$selected" | awk '{print $1}')
-    selcomm=$(echo "$selected" | awk '{print $3}')
+    selcomm=$(echo "$selected" | awk '{print $4}')
 
-    answer="$(echo -e "No\nYes" | tofi --prompt-text "Kill $selcomm ($selpid)? ")"
+    answer="$(echo -e "No\nYes" | tofi --prompt-text "Kill $selpid $selcomm? ")"
 
     if [[ $answer == "Yes" ]]; then
         kill -15 "$selpid"
