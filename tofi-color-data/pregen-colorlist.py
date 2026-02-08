@@ -20,7 +20,7 @@ col_len = 25
 img = Image.new('RGBA', (cell_width * ((len(data)-1)//col_len+1), cell_height * col_len), (0,0,0,0))
 draw = ImageDraw.Draw(img)
 
-font = ImageFont.truetype('/home/leeyw/.local/share/fonts/JetBrainsMonoNerdFont-Regular.ttf', 15)
+font = ImageFont.truetype('/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Bold.ttf', 15)
 
 for i, (name, back_rgb, fore_rgb) in enumerate(data):
     y = (i%col_len) * cell_height

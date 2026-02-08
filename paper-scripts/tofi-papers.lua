@@ -90,11 +90,11 @@ uv.run()
 
 output = string.gsub(getOutput(), '\n', '')
 if output == options[1] then
-    os.execute('xdg-open '..paper_path)
+    os.execute('xdg-open '..paper_path..' &')
 elseif output == options[2] then
-    os.execute('wl-copy '..string.format('"file://%s"', paper_path))
+    os.execute('wl-copy '..string.format('"file://%s"', paper_path)..' &')
 elseif output == options[3] then
-    os.execute('wl-copy '..string.format('"%s"', paper_path))
+    os.execute('wl-copy '..string.format('"%s"', paper_path)..' &')
 elseif output == options[4] then
-    os.execute('wl-copy '..string.format('"%s"', doi_selected))
+    os.execute('wl-copy '..string.format('"%s"', doi_selected)..' &')
 end

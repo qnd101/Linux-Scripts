@@ -99,7 +99,7 @@ async def main():
         tofi_input += f"{obj['ssid']:<40} {obj['strength_pct']:>4}% {'✓' if obj['known'] else '?'}\n"
 
     result = subprocess.run(
-            ['tofi', '--prompt-text', 'Connect to: ', '--width', '720'], 
+            ['tofi', '--prompt-text', 'Connect to: ', '--width', '800'], 
         input=tofi_input, 
         capture_output=True, 
         text=True
