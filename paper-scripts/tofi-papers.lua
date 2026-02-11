@@ -1,5 +1,4 @@
 #!/bin/env luajit
-
 package.path = "/home/leeyw/scripts/paper-scripts/?.lua;"
     .. "/home/leeyw/scripts/lua/?.lua;"
     .. package.path
@@ -57,7 +56,7 @@ local paper_path = paperdb_dir..'/'..string.gsub(doi_selected,'/','_')..'.pdf'
 -- print('Selected: '..doi_selected)
 
 -- Create another window for the next action 
-local options = { 'Open', 'Copy URL', 'Copy Path', 'Copy DOI' }
+local options = { 'Open', 'Copy Path', 'Copy DOI', 'Copy Path URL', 'Copy DOI URL' }
 getInfo = tofi.spawnTofi(options, nil, nil, 'Action: ')
 uv.run()
 
@@ -65,9 +64,11 @@ output = string.gsub(getInfo().output, '\n', '')
 if output == options[1] then
     os.execute('xdg-open '..paper_path..' &')
 elseif output == options[2] then
-    os.execute('wl-copy '..string.format('"file://%s"', paper_path)..' &')
-elseif output == options[3] then
     os.execute('wl-copy '..string.format('"%s"', paper_path)..' &')
-elseif output == options[4] then
+elseif output == options[3] then
     os.execute('wl-copy '..string.format('"%s"', doi_selected)..' &')
+elseif output == options[4] then
+    os.execute('wl-copy '..string.format('"file://%s"', paper_path)..' &')
+elseif output == options[5] then
+    os.execute('wl-copy '..string.format('"https://doi.org/%s"', doi_selected)..' &')
 end
