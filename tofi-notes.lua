@@ -1,8 +1,13 @@
 #!/bin/env luajit
 
+package.path = '/home/leeyw/scripts/lua/?.lua;'..package.path
+local tofi = require "tofi"
+local uv = require "luv"
+local lfs = require "lfs"
+
 -- Define a queue type
 Queue = {}
-Queue.metatable = {
+Queue = {
     __index = {
         push = function (queue, obj)
             queue.last = queue.last + 1
@@ -25,7 +30,7 @@ function Queue.new(list)
     for i = 1, #list do
         result[i] = list[i]
     end
-    setmetatable(result, Queue.metatable)
+    setmetatable(result, Queue)
     return result
 end
 
@@ -34,29 +39,6 @@ local function shell_escape(str)
   -- Replace any existing ' with '\''
   return "'" .. string.gsub(str, "'", "'\\''") .. "'"
 end
-
-local uv = require "luv"
-local function spawnTofi(args)
-    local pipe_in = uv.new_pipe(false)
-    local pipe_out = uv.new_pipe(false)
-    local options = {
-        stdio = { pipe_in, pipe_out },
-        args = args,
-    }
-    uv.spawn('tofi', options, function(code, signal)
-        assert(code == 0, "Failed to spawn tofi")
-        uv.close(pipe_out)
-    end)
-    local output = ""
-    uv.read_start(pipe_out, function(err, chunk)
-        if chunk then output = output .. chunk end
-    end)
-
-    return pipe_in, function ()
-        return output end
-end
-
-local lfs = require "lfs"
 
 local base_paths = {
     '/mnt/Data/Notes/',
@@ -92,11 +74,9 @@ for base_dir in
     end
 end
 
-local pipe_in, getOutput = spawnTofi{'--prompt-text', "Note: "}
-pipe_in:write(table.concat(tofi_strings, '\n'))
-uv.close(pipe_in)
+local getInfo = tofi.spawnTofi(tofi_strings, nil, nil, 'Notes: ')
 uv.run()
-local output = string.gsub(getOutput(), '\n', '')
+local output = string.gsub(getInfo().output, '\n', '')
 
 if #output > 0 then
     os.execute('xdg-open '..shell_escape(inv_table[output])..' &')

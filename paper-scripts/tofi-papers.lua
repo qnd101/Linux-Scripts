@@ -1,16 +1,16 @@
 #!/bin/env luajit
 
-local uv = require "luv"
+package.path = "/home/leeyw/scripts/paper-scripts/?.lua;"
+    .. "/home/leeyw/scripts/lua/?.lua;"
+    .. package.path
 
-local script_dir = arg[0]:match("(.-)[^/%\\]+$")
-if script_dir == "" then script_dir = "./" end
-package.path = script_dir .. "?.lua;" .. package.path
+local uv = require "luv"
+local paperinfo = require "update-metadata"
+local fuzzy = require "fuzzy-match"
+local tofi = require "tofi"
 
 local paperdb_dir = '/mnt/Data/Papers/DB'
 local cache_path = "/mnt/Data/Papers/cache.json"
-
-local paperinfo = require "update-metadata"
-local fuzzy = require "fuzzy-match"
 
 local cache_data = paperinfo.readCache(cache_path)
 local local_dois = paperinfo.getLocalDOIs(paperdb_dir)
@@ -20,31 +20,6 @@ if paperinfo.updateCache(local_dois, cache_data) then
     paperinfo.writeCache(cache_path, cache_data)
     print('Done!')
 end
-
-local function spawnTofi(args)
-    local pipe_in = uv.new_pipe(false)
-    local pipe_out = uv.new_pipe(false)
-    local options = {
-        stdio = { pipe_in, pipe_out },
-        args = args,
-    }
-    uv.spawn('tofi', options, function(code, signal)
-        assert(code == 0, "Failed to spawn tofi")
-        uv.close(pipe_out)
-    end)
-    local output = ""
-    uv.read_start(pipe_out, function(err, chunk)
-        if chunk then output = output .. chunk end
-    end)
-
-    return pipe_in, function ()
-        return output end
-end
-
-
-local pipe_in, getOutput = spawnTofi(
-    { '--width', '1300', '--height', '250', '--prompt-text', 'Papers: ' }
-)
 
 local inv_table = {}
 local lines = ''
@@ -60,13 +35,14 @@ for doi, paper_data in pairs(cache_data) do
     inv_table[line] = doi
     lines = lines .. line .. '\n'
 end
-pipe_in:write(lines)
-uv.close(pipe_in)
+
+local getInfo = tofi.spawnTofi(lines, 1300, 250, 'Papers: ')
+
 -- Wait til tofi ends
 uv.run()
 
 -- Use output to get doi
-local output = string.gsub(getOutput(), '\n', '')
+local output = string.gsub(getInfo().output, '\n', '')
 
 if #output == 0 then
     print "Nothing Selected!"
@@ -81,14 +57,11 @@ local paper_path = paperdb_dir..'/'..string.gsub(doi_selected,'/','_')..'.pdf'
 -- print('Selected: '..doi_selected)
 
 -- Create another window for the next action 
-pipe_in, getOutput =  spawnTofi {'--prompt-text', 'Action: '}
-
 local options = { 'Open', 'Copy URL', 'Copy Path', 'Copy DOI' }
-pipe_in:write(table.concat(options, '\n'))
-uv.close(pipe_in)
+getInfo = tofi.spawnTofi(options, nil, nil, 'Action: ')
 uv.run()
 
-output = string.gsub(getOutput(), '\n', '')
+output = string.gsub(getInfo().output, '\n', '')
 if output == options[1] then
     os.execute('xdg-open '..paper_path..' &')
 elseif output == options[2] then
