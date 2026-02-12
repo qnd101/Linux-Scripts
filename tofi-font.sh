@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
 SEARCH_PROMPT="Font: "
 SIZE=600

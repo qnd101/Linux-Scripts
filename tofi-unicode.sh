@@ -1,8 +1,9 @@
-#!/bin/env bash
+#!/bin/sh
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+# Move to script directory
+cd "$(dirname "$0")" || exit
 
-DATA_PATH="$SCRIPT_DIR/math_unicode.csv"
+DATA_PATH="./math_unicode.csv"
 
 result=$(column -s, -t "$DATA_PATH" | tofi --width 600 --height 300 --font 'monospace' --prompt-text 'Symbol: ' | awk '{print $2}')
 
