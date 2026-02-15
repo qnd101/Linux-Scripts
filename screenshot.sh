@@ -27,7 +27,7 @@ case "$filename" in
         -*) return 1 ;;
 esac
 
-savepath="/home/leeyw/screenshots/$filename.png"
+savepath="$HOME/screenshots/$filename.png"
 if cp "$dstpath" -T "$savepath"; then
     notify-send "Screenshot saved" "in $savepath" --app-name "screenshot.sh"
 else

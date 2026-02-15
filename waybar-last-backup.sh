@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-export RESTIC_PASSWORD_FILE='/home/leeyw/.restic_pass'
+export RESTIC_PASSWORD_FILE="$HOME/.restic_pass"
 export RESTIC_REPOSITORY='sftp:home-backup-ubuntu:/srv/restic-repo'
 
 dt_iso="$(restic --json snapshots --latest 1 -H "$(hostname -s)" | jq -r 'max_by(.time) | .summary.backup_start')"
