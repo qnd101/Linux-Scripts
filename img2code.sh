@@ -33,7 +33,7 @@ json_data=$(printf '{
       {
         "parts": [
           {
-            "text": "Convert this image into code of language %s. Provide the output purely in code. Do NOT embded it inside markdown syntax."
+            "text": "Convert the provided image into %s code. Provide the output purely in code. Do NOT embed it inside a markdown code block."
           },
           {
         "inline_data": {

@@ -42,7 +42,8 @@ end
 
 local base_paths = {
     '/mnt/Data/Notes/',
-    '/mnt/Data/CQM/Resources/'
+    '/mnt/Data/CQM/Resources/',
+    '/mnt/Data/CQM/Presentations/Summary/'
 }
 
 -- Recursive search for all pdf files under directory 
@@ -74,7 +75,7 @@ for base_dir in
     end
 end
 
-local getInfo = tofi.spawnTofi(tofi_strings, nil, nil, 'Notes: ')
+local getInfo = tofi.spawnTofi(tofi_strings, 800, nil, 'Notes: ')
 uv.run()
 local output = string.gsub(getInfo().output, '\n', '')
 
