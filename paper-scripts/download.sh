@@ -29,7 +29,7 @@ echo "Output file will be '$outPath'"
 # Check for Arxiv
 if expr "$DOI" : '^10.48550' >/dev/null ; then
     echo "Detected Arxiv Prefix"
-    id=$(echo DOI | cut -d'/' -f2 | cut -d'.' -f2-)
+    id=${DOI#*/*.}
     pdfPath="https://arxiv.org/pdf/${id}"
 fi
 
