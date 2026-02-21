@@ -1,0 +1,186 @@
+:root {
+    font-size: 20px;
+}
+
+body { 
+    max-width: 45rem; /* Standard paper-width feel */ 
+    margin: 4rem auto;
+    padding: 0 4rem;
+    line-height: 2.0;
+    color: #1a1a1a;
+    background-color: #fff;
+    font-family: "IBM Plex Sans", sans-serif;
+    font-weight: 400;
+}
+
+h1, h2, h3 {
+    font-family: "IBM Plex Serif", serif;
+    color: #000;
+}
+
+h1 {
+    text-align: center;
+    font-size: 35px;
+}
+h2 {
+    font-size: 30px;
+}
+h3,h4,h5 {
+    font-size: 25px;
+}
+
+/* multiline code block */
+div.sourceCode {
+    padding: .5rem 1.5rem 0.5rem 1.5rem;
+    border-radius: .3em;
+    font-family: "JetBrainsMono Nerd Font";
+    background: #fff0f5;
+}
+
+/* inline code block */
+:not(.sourceCode) > pre > code, 
+:not(.sourceCode) > code {
+    padding: 0.05em 0.4em;
+    background: #e6e6fa;
+}
+
+code {
+    font-family: "JetBrainsMono Nerd Font", "JetBrains Mono", mono;
+    font-size: 0.9rem;
+}
+
+/* blockquote { */
+/*     border-left: 3px solid #ddd; */
+/*     margin-left: 0; */
+/*     padding-left: 1.5rem; */
+/*     font-style: italic; */
+/* } */
+/* 1. Reset the counter at the start of the document */
+body {
+  counter-reset: h2counter;
+}
+
+/* 2. Increment and display for H2 */
+h2 {
+  counter-reset: h3counter; /* Reset H3 every time a new H2 starts */
+}
+
+h2::before {
+  counter-increment: h2counter;
+  content: counter(h2counter) ". "; /* Result: 1. , 2. , etc. */
+  margin-right: 0.5em;
+}
+
+/* 3. Increment and display for H3 */
+h3::before {
+  counter-increment: h3counter;
+  content: counter(h2counter) "." counter(h3counter) " "; /* Result: 1.1, 1.2, etc. */
+  margin-right: 0.5em;
+}
+
+ul {
+  list-style-type: '–  '; 
+}
+
+/* Level 2: En-dash (Very Typst/Academic) */
+ul ul {
+  padding-left: 1.2rem; /* Adjust this to set the main 'tab' width */
+  list-style-type: circle ; /* Note the space after the dash for padding */
+}
+/* Level 3: Square or Asterisk */
+ul ul ul {
+  list-style-type: disc;
+}
+
+div:has(> pre.sourceCode)::before {
+    display: block;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 0.75rem;
+    font-weight: bold;
+    padding: 0 1em;
+    border-radius: 1em;
+    border: 1px solid;
+    border-color: black;
+    width: fit-content;
+    margin-top: .1rem; /* Stitch it to the pre block */
+    margin-left: -.5rem;
+    margin-bottom: .3rem; /* Stitch it to the pre block */
+}
+
+div:has(> pre.python)::before {
+  /* Your styles here */
+    content: " Python";
+}
+/* JavaScript */
+div:has(> pre.javascript)::before,
+div:has(> pre.js)::before {
+    content: " JavaScript";
+}
+
+/* TypeScript */
+div:has(> pre.typescript)::before,
+div:has(> pre.ts)::before {
+    content: " TypeScript";
+}
+
+/* HTML */
+div:has(> pre.html)::before {
+    content: " HTML";
+}
+
+/* CSS */
+div:has(> pre.css)::before {
+    content: " CSS";
+}
+/* Verilog / SystemVerilog */
+div:has(> pre.verilog)::before,
+div:has(> pre.systemverilog)::before {
+    content: " Verilog";
+}
+
+/* C++ */
+div:has(> pre.cpp)::before,
+div:has(> pre.cplusplus)::before {
+    content: " C++";
+}
+
+/* Rust */
+div:has(> pre.rust)::before,
+div:has(> pre.rs)::before {
+    content: " Rust";
+}/* C Language */
+div:has(> pre.c)::before {
+    content: " C";
+}
+
+/* Lua */
+div:has(> pre.lua)::before {
+    content: " Lua";
+}
+
+/* MATLAB */
+div:has(> pre.matlab)::before {
+    content: "󰆧 MATLAB";
+}
+/* SQL */
+div:has(> pre.sql)::before {
+    content: " SQL";
+}
+
+/* Bash / Shell */
+div:has(> pre.bash)::before,
+div:has(> pre.sh)::before,
+div:has(> pre.shell)::before {
+    content: " Bash";
+}
+
+/* JSON */
+div:has(> pre.json)::before {
+    content: " JSON";
+}
+
+/* YAML */
+div:has(> pre.yaml)::before,
+div:has(> pre.yml)::before {
+    content: " YAML";
+}
