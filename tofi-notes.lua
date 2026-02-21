@@ -95,5 +95,5 @@ if extension == 'pdf' then
     os.execute('xdg-open ' .. shellEscape(inv_table[output]) .. ' &')
 elseif extension == 'md' then
     -- Use my custom script for viewing mardown
-    os.execute(home_dir..'/scripts/view-md.sh ' .. shellEscape(inv_table[output]) .. ' &')
+    os.execute(home_dir..'/scripts/view-md.sh ' .. shellEscape(inv_table[output]))
 end

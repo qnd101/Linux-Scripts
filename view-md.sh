@@ -14,4 +14,6 @@ test -z "$dst_html" && dst_html=$(mktemp "${TMPDIR:-/tmp}/tmp.XXXXXX.html")
 # Convert markdown into html using pandoc
 pandoc -o "$dst_html" --css "file:///$HOME/scripts/markdown.css" -s -f markdown+hard_line_breaks "$file" -V header-includes="<script src=\"file:///$HOME/scripts/markdown.js\"></script>"
 # Open html using Cog browser
-cog --platform=wl --doc-viewer "--gapplication-app-id=com.igalia.Cog$$" "$dst_html"
+appid=com.igalia.Cog.viewmd$$
+cog --platform=wl --doc-viewer "--gapplication-app-id=$appid" "$dst_html" &
+sleep 1 && swaymsg "[app_id=\"$appid\"] title_format 'Cog: $file'"
