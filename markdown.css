@@ -24,6 +24,10 @@ h1:first-of-type {
     text-align: center;
     font-size: 40px;
 }
+h1:first-of-type::before {
+  counter-reset: h1counter;
+  content: '';
+}
 h2 {
     font-size: 30px;
 }
@@ -51,32 +55,35 @@ code {
     font-size: 0.9rem;
 }
 
-/* blockquote { */
-/*     border-left: 3px solid #ddd; */
-/*     margin-left: 0; */
-/*     padding-left: 1.5rem; */
-/*     font-style: italic; */
-/* } */
 /* 1. Reset the counter at the start of the document */
 body {
-  counter-reset: h2counter;
+  counter-reset: h1counter;
 }
 
+h1 {
+  counter-reset: h2counter;
+}
 /* 2. Increment and display for H2 */
 h2 {
   counter-reset: h3counter; /* Reset H3 every time a new H2 starts */
 }
 
+h1::before {
+  counter-increment: h1counter;
+  content: counter(h1counter) ". "; /* Result: 1. , 2. , etc. */
+  margin-right: 0.5em;
+}
+
 h2::before {
   counter-increment: h2counter;
-  content: counter(h2counter) ". "; /* Result: 1. , 2. , etc. */
+  content: counter(h1counter) "." counter(h2counter) ". "; /* Result: 1. , 2. , etc. */
   margin-right: 0.5em;
 }
 
 /* 3. Increment and display for H3 */
 h3::before {
   counter-increment: h3counter;
-  content: counter(h2counter) "." counter(h3counter) " "; /* Result: 1.1, 1.2, etc. */
+  content: counter(h1counter) "." counter(h2counter) "." counter(h3counter) " "; /* Result: 1.1, 1.2, etc. */
   margin-right: 0.5em;
 }
 

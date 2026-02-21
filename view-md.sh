@@ -2,11 +2,13 @@
 
 # Assert 1st input is a valid markdown file
 file=$1
-! [ "${file##*.}" = 'md' ] || {
+[ "${file##*.}" = 'md' ] || {
     echo "ERR: Provide a .md file!" >&2
+    exit 1
 }
 test -e "$file" || {
     echo "ERR: File $file does not exist" >&2
+    exit 1
 }
 # Is dst is not provided, create a file in tmp
 dst_html=$2
