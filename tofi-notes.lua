@@ -48,6 +48,7 @@ end
 local base_paths = {
     '/mnt/Data/Notes/',
     '/mnt/Data/CQM/Resources/',
+    '/mnt/Data/CQM/Notes/',
     '/mnt/Data/CQM/Presentations/Summary/'
 }
 
