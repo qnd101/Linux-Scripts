@@ -84,7 +84,7 @@ local function getMetadataFromCrossref(doi)
     return {
         doi = doi,
         title = message.title[1],
-        year = message.created['date-parts'][1][1],
+        year = message.published['date-parts'][1][1],
         authors = authors
     }
 end
