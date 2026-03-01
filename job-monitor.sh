@@ -8,9 +8,8 @@ test -e "$jobdatapath" || exit 1
 
 # Parse data out of json file
 # Use only 1st element (for now)
-jobid=$(jq -r '.[0].jobid' "$jobdatapath" )
-name=$(jq -r '.[0].name' "$jobdatapath" )
-taskcnt=$(jq -r '.[0].taskcnt' "$jobdatapath" )
+jobid=$(jq -r '.[0].id' "$jobdatapath" )
+# alias=$(jq -r '.[0].alias' "$jobdatapath" )
 dst=/project/leeyw101/$(jq -r '.[0].dst' "$jobdatapath" )
 targetcnt=$(jq -r '.[0].targetcnt' "$jobdatapath" )
 
@@ -20,7 +19,11 @@ run_ssh() {
     count=0
     until res=$(ssh $SSH_OPTS "$REMOTE" "$1" 2>/dev/null); do
         count=$((count + 1))
-        [ $count -lt 3 ] || return 1
+        [ $count -lt 3 ] || {
+            echo "WRN: Failed ssh. No more retries." >&2
+                    return 1
+        }
+        echo "WRN: Failed ssh. Retrying..." >&2
         sleep .5
     done
     echo "$res"
@@ -28,13 +31,20 @@ run_ssh() {
 
 targetcnt_cur=$(run_ssh "find $dst -type f | wc -l") || {
     # Exit if failed
+    echo "ERR: Failed to find result files!" >&2
     return 1
 }
-running_raw=$(run_ssh "sacct -j $jobid -n -X --format=State")
-running_cur=$(echo "$running_raw" | grep -c 'RUNNING')
+states=$(run_ssh "sacct -j $jobid -n -X --format=State")
+# Possible states are:
+# RUNNING, COMPLETED, TIMEOUT/FAILED, PENDING, ...
+total=$(echo "$states" | wc -l)
+running=$(echo "$states" | grep -cE 'RUNNING|PENDING|PREEMPTED')
+failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
+completed=$(echo "$states" | grep -cE 'COMPLETED')
+unknown=$(echo "$total - $running - $failed - $completed" | bc)
 
-# Crop name if too long
-test ${#name} -gt 8 && \
-    name=$(printf "%.6s.." "$name")
+# # Crop name if too long
+# test ${#alias} -gt 8 && \
+#     alias=$(printf "%.6s.." "$alias")
 
-echo "$name  $targetcnt_cur/$targetcnt  $running_cur/$taskcnt"
+echo "󱃣 $targetcnt_cur/$targetcnt  $running  $completed  $failed  $unknown"
