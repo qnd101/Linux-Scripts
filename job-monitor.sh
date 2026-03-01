@@ -11,7 +11,7 @@ test -e "$jobdatapath" || exit 1
 jobid=$(jq -r '.[0].jobid' "$jobdatapath" )
 name=$(jq -r '.[0].name' "$jobdatapath" )
 taskcnt=$(jq -r '.[0].taskcnt' "$jobdatapath" )
-dst=$(jq -r '.[0].dst' "$jobdatapath" )
+dst=/project/leeyw101/$(jq -r '.[0].dst' "$jobdatapath" )
 targetcnt=$(jq -r '.[0].targetcnt' "$jobdatapath" )
 
 SSH_OPTS="-o ControlMaster=auto -o ControlPath=/tmp/ssh-%r@%h:%p -o ControlPersist=10s"
