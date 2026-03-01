@@ -13,12 +13,14 @@ fi
 # SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 logfile="$HOME/backup.logs"
 
-{ echo ""; date; } >> "$logfile"
-restic backup "$P1" "$P2" --files-from-raw \
-    <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir") \
-    >> "$logfile"
+{
+    echo "";
+    date;
+    restic backup "$P1" "$P2" --files-from-raw \
+        <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir");
+    restic forget -c --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune;
+} >> "$logfile" 2>&1
 
 # Autoremove old snapshots
-restic forget --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune
 # Update cache
 "$HOME/scripts/backup-scripts/update-backup-cache.sh"
