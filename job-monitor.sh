@@ -10,7 +10,7 @@ test -e "$jobdatapath" || exit 1
 # Use only 1st element (for now)
 jobid=$(jq -r '.[0].id' "$jobdatapath" )
 # alias=$(jq -r '.[0].alias' "$jobdatapath" )
-dst=/project/leeyw101/$(jq -r '.[0].dst' "$jobdatapath" )
+dst=/project/leeyw101/$(jq -r '.[0].chkdir' "$jobdatapath" )
 targetcnt=$(jq -r '.[0].targetcnt' "$jobdatapath" )
 
 SSH_OPTS="-o ControlMaster=auto -o ControlPath=/tmp/ssh-%r@%h:%p -o ControlPersist=10s"
