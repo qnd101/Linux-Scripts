@@ -20,4 +20,5 @@ if [ -n "$font" ]; then
         -annotate +0+0 "$font\n\n$PREVIEW_TEXT" \
         -flatten "png:-" \
     | swayimg "--position=$POSITION" "--size=${SIZE},${SIZE}" "--config=viewer.window=$BG_COLOR" "--config=info.show=no" "-"
+    echo "$font" | wl-copy
 fi
