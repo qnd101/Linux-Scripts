@@ -49,7 +49,8 @@ local base_paths = {
     '/mnt/Data/Notes/',
     '/mnt/Data/CQM/Resources/',
     '/mnt/Data/CQM/Notes/',
-    '/mnt/Data/CQM/Presentations/Summary/'
+    '/mnt/Data/CQM/Presentations/Summary/',
+    '/mnt/Data/SNU/'
 }
 
 -- Recursive search for all pdf files under directory
@@ -86,7 +87,9 @@ for _, base_dir in ipairs(base_paths) do
     end
 end
 
-local getInfo = tofi.spawnTofi(tofi_strings, 800, nil, 'Notes: ')
+-- Set font in pango format
+-- Fallback font for Korean characters!
+local getInfo = tofi.spawnTofi(tofi_strings, 800, nil, 'Notes: ', {'--font=JetBrainsMono,NotoSansMonoCJKkr'})
 uv.run()
 local output = string.gsub(getInfo().output, '\n', '')
 

@@ -1,6 +1,7 @@
 -- Simple Lua library for launching tofi
 
 local uv = require "luv"
+local tofi_nfd = '/home/leeyw/scripts/tofi-nfc.sh'
 
 -- Creates a tofi process and returns a callback to the output
 local function spawnTofi(content, width, height, prompt, args)
@@ -34,7 +35,7 @@ local function spawnTofi(content, width, height, prompt, args)
 
     -- Start process
     local info = { output = '' }
-    info.handle, info.pid = uv.spawn('tofi', options, function(code, signal)
+    info.handle, info.pid = uv.spawn(tofi_nfd, options, function(code, signal)
         info.code = code
         uv.close(stdout)
     end)
