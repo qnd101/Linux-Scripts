@@ -5,6 +5,9 @@ datafile = ARG1
 stats datafile u 1:3 nooutput
 N = STATS_blocks
 Nshow = (ARGC >= 2 && strlen(ARG2) > 0) ? ARG2 : N
+if (Nshow > N) {
+    Nshow = N
+}
 
 # 3. Setup the visual style
 set terminal qt persist
@@ -17,7 +20,12 @@ set xrange [-limit:limit]
 set ylabel "RhoV2"
 
 set cbrange [0:Nshow-1]
-set palette defined (0 "grey", N-2 "blue", N-1 "red")
+if (Nshow>=2) {
+    set palette defined (0 "grey", Nshow-2 "blue", Nshow-1 "red")
+}
+else {
+    set palette defined (0 "red")
+}
 unset colorbox
 
 plot for [i=N-Nshow:N-1] datafile index i using 1:3 \

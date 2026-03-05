@@ -11,4 +11,5 @@ rsync -rtvh "$remotedst" "$localdst"
 
 sel=$(fdfind --base-directory "$localdst" | fzf)
 test -z "$sel" && exit
-gnuplot -c "$HOME/scripts/ghost-plot.gp" "$localdst/$sel" "$@"
+gnuplot -c "$HOME/scripts/ghost-plot.gnuplot" "$localdst/$sel" "$@"
+sleep 1 && swaymsg "[app_id=\"gnuplot_qt\"] title_format 'gnuplot: $sel'"
