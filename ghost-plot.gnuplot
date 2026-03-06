@@ -1,3 +1,4 @@
+#!/bin/env -S gnuplot -c
 # 1. Assign the argument to a variable
 datafile = ARG1
 
@@ -19,12 +20,12 @@ limit = (ARGC >= 3 && strlen(ARG3) > 0) ? ARG3 : 5
 set xrange [-limit:limit]
 set ylabel "RhoV2"
 
-set cbrange [0:Nshow-1]
 if (Nshow>=2) {
+    set cbrange [0:Nshow-1]
     set palette defined (0 "grey", Nshow-2 "blue", Nshow-1 "red")
 }
 else {
-    set palette defined (0 "red")
+    set palette defined (0 "red", 1 "red")
 }
 unset colorbox
 
