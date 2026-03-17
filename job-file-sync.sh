@@ -13,4 +13,7 @@ localdst="/mnt/Data/CQM/Calc/MuNRG/$projName/"
 
 test -e "$localdst" || mkdir -p "$localdst"
 rsync -rtvh "$remotedst" "$localdst"
+
+# Resume files are synced in opposite way
+rsync -rtvh "$localdst/resume/" "$remotedst/resume/"
 done

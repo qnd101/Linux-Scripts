@@ -3,15 +3,17 @@
 # Script for monitoring jobs in fifi over ssh
 # Source job data file
 # Use json format
-jobdatapath=$HOME/fifi-jobs.json
+jobdatapath=$HOME/remote-jobs.json
 test -e "$jobdatapath" || exit 1
+
+[ "$(jq '.jobs | length' "$jobdatapath")" -gt 0 ] || exit 1
 
 # Parse data out of json file
 # Use only 1st element (for now)
-jobid=$(jq -r '.[0].id' "$jobdatapath" )
+jobid=$(jq -r '.jobs.[0].jobid.[0]' "$jobdatapath" )
 # alias=$(jq -r '.[0].alias' "$jobdatapath" )
-dst=/project/leeyw101/$(jq -r '.[0].chkdir' "$jobdatapath" )
-targetcnt=$(jq -r '.[0].targetcnt' "$jobdatapath" )
+glo=$(jq -r '.glo' "$jobdatapath")
+projPath=$glo/$(jq -r '.jobs.[0].projName' "$jobdatapath" )
 
 SSH_OPTS="-o ControlMaster=auto -o ControlPath=/tmp/ssh-%r@%h:%p -o ControlPersist=10s"
 REMOTE="leeyw101@snu-fifi-rocky"
@@ -29,7 +31,8 @@ run_ssh() {
     echo "$res"
 }
 
-targetcnt_cur=$(run_ssh "find $dst -type f | wc -l") || {
+targetcnt=$(run_ssh "jq 'if type == \"array\" then length else 1 end' $projPath/results.json")
+targetcnt_cur=$(run_ssh "find $projPath/results/ -type f | wc -l") || {
     # Exit if failed
     echo "ERR: Failed to find result files!" >&2
     return 1
@@ -42,9 +45,5 @@ running=$(echo "$states" | grep -cE 'RUNNING|PENDING|PREEMPTED')
 failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
 completed=$(echo "$states" | grep -cE 'COMPLETED')
 unknown=$(echo "$total - $running - $failed - $completed" | bc)
-
-# # Crop name if too long
-# test ${#alias} -gt 8 && \
-#     alias=$(printf "%.6s.." "$alias")
 
 echo "󱃣 $targetcnt_cur/$targetcnt  $running  $completed  $failed  $unknown"
