@@ -83,6 +83,8 @@ def main():
                 jobinfo_path = jobinfo_dir / f'job_{job_id}.json'
                 with open(jobinfo_path, 'r') as f:
                     jobinfo = json.load(f)
+                    if not isinstance(jobinfo, list):
+                        jobinfo = [jobinfo]
                     for task_id in task_ids:
                         running_items.update(jobinfo[int(task_id)-1]["targets"])
             evol_items = evol_items.intersection(running_items)
