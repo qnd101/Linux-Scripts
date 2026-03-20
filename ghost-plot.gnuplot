@@ -16,9 +16,12 @@ set grid
 
 set xlabel "ω"
 
-limit = (ARGC >= 3 && strlen(ARG3) > 0) ? ARG3 : 5
-set xrange [-limit:limit]
+xlimit = (ARGC >= 3 && strlen(ARG3) > 0) ? ARG3 : 5
+set xrange [-xlimit:xlimit]
 set ylabel "RhoV2"
+if (ARGC >= 4 && strlen(ARG4) > 0) {
+    set yrange [0:ARG4]
+}
 
 if (Nshow>=2) {
     set cbrange [0:Nshow-1]
