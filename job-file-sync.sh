@@ -1,4 +1,5 @@
 #!/bin/sh
+[ "$1" = '--nosend' ] && nosend=true
 jobdatapath=$HOME/remote-jobs.json
 test -e "$jobdatapath" || exit 1
 
@@ -15,5 +16,5 @@ test -e "$localdst" || mkdir -p "$localdst"
 rsync -rtvh "$remotedst" "$localdst"
 
 # Resume files are synced in opposite way
-rsync -rtvh "$localdst/resume/" "$remotedst/resume/"
+test -z "$nosend" && rsync -rtvh "$localdst/resume/" "$remotedst/resume/"
 done

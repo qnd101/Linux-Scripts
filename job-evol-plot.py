@@ -29,7 +29,7 @@ def main():
     if args.renew:
         sync_script = home / "scripts/job-file-sync.sh"
         if sync_script.exists():
-            subprocess.run([str(sync_script)])
+            subprocess.run([str(sync_script), '--nosend'])
 
     # 4. Process Job Data
     try:
