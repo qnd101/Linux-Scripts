@@ -10,7 +10,6 @@ test -e "$jobdatapath" || exit 1
 
 # Parse data out of json file
 # Use only 1st element (for now)
-jobid=$(jq -r '.jobs.[0].jobid.[0]' "$jobdatapath" )
 # alias=$(jq -r '.[0].alias' "$jobdatapath" )
 glo=$(jq -r '.glo' "$jobdatapath")
 projPath=$glo/$(jq -r '.jobs.[0].projName' "$jobdatapath" )
@@ -37,7 +36,19 @@ targetcnt_cur=$(run_ssh "find $projPath/results/ -type f | wc -l") || {
     echo "ERR: Failed to find result files!" >&2
     return 1
 }
-states=$(run_ssh "sacct -j $jobid -n -X --format=State")
+jobids=$(jq -r '.jobs.[0].jobid.[]' "$jobdatapath" )
+for id in $jobids; do
+    res=$(run_ssh "sacct -j $id -n -X --format=State")
+    if [ -n "$res" ]; then
+        if [ -z "$states" ]; then
+            states="$res"
+        else
+            # Standard POSIX way to append a literal newline
+            states="$states
+$res"
+        fi
+    fi
+done
 # Possible states are:
 # RUNNING, COMPLETED, TIMEOUT/FAILED, PENDING, ...
 total=$(echo "$states" | wc -l)
