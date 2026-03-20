@@ -1,38 +1,39 @@
-#!/bin/env -S gnuplot -c
-# 1. Assign the argument to a variable
+# Assign the arguments to variable
 datafile = ARG1
+itstart = ARG2 # Start value of iter
+itend = ARG3 # End value of iter
 
-# 2. Scan the file to find out how many iterations (blocks) it has
+# Scan the file to find out how many iterations (blocks) it has
 stats datafile u 1:3 nooutput
 N = STATS_blocks
-Nshow = (ARGC >= 2 && strlen(ARG2) > 0) ? ARG2 : N
-if (Nshow > N) {
-    Nshow = N
+
+# Set negative values if itstart, itend as positive
+if (itstart < 0) {
+    itstart = N + itstart;
+}
+if (itend < 0) {
+    itend = N + itend;
 }
 
 # 3. Setup the visual style
 set terminal qt persist
 set grid
 
-set xlabel "ω"
+set xrange [ARG4:ARG5]
+set yrange [ARG6:ARG7]
+set xlabel ARG8
+set ylabel ARG9
 
-xlimit = (ARGC >= 3 && strlen(ARG3) > 0) ? ARG3 : 5
-set xrange [-xlimit:xlimit]
-set ylabel "RhoV2"
-if (ARGC >= 4 && strlen(ARG4) > 0) {
-    set yrange [0:ARG4]
-}
-
-if (Nshow>=2) {
-    set cbrange [0:Nshow-1]
-    set palette defined (0 "grey", Nshow-2 "blue", Nshow-1 "red")
+if (itend-itstart>=1) {
+    set cbrange [itstart:itend]
+    set palette defined (itstart "grey", itend-1 "blue", itend "red")
 }
 else {
-    set palette defined (0 "red", 1 "red")
+    set palette defined (itstart "red", itend "red")
 }
 unset colorbox
 
-plot for [i=N-Nshow:N-1] datafile index i using 1:3 \
-     with lines lc palette cb (i - N + Nshow) \
-     lw 1 \
-     title ((i == N-1) ? ("iter=" . i) : (i == N-Nshow) ? ("iter=" . i) : "" )
+plot for [i=itstart:itend] datafile index i using 1:3 \
+     with lines lc palette cb i \
+     lw 0.5 \
+     title ((i == itend) ? ("iter=" . i) : (i == itstart) ? ("iter=" . i) : "" )
