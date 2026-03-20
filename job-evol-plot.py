@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
+from asyncio import Condition
 from asyncio.base_tasks import _task_print_stack
 import sys
+import os
 import json
 import subprocess
 import argparse
@@ -39,6 +41,17 @@ def main():
         print("Error: Could not parse job JSON.")
         sys.exit(1)
 
+    # Find running jobs
+    if not args.all:
+        cmd = f'ssh {data['remote']} "sacct --state=RUNNING --format=JobID -n"'
+        output = subprocess.check_output(cmd, shell=True, text=True)
+        job_dict = defaultdict(list)
+        for line in output.strip().splitlines():
+            entry = line.strip()
+            if not entry.endswith(".b+"):
+                job_id, task_id = entry.split(".")[0].split("_")
+                job_dict[job_id].append(task_id)
+
     fzf_lines = []
 
     for proj in projects:
@@ -50,50 +63,45 @@ def main():
         if not evol_dir.is_dir():
             continue
 
-        # Get 'evol' files: strip 'RhoV2_' and extension
-        # Equivalent to: fdfind --base-directory ... --format '{/.}' | sed 's/^RhoV2_//'
-        evol_items = {
-            f.stem.replace("RhoV2_", "") 
-            for f in evol_dir.glob("RhoV2_*.dat")
-        }
+        evol_items = defaultdict(list);
+        for f in evol_dir.glob("*.dat"):
+            functype, hashedName = tuple(f.stem.split('_', 1))
+            evol_items[hashedName].append(functype)
 
         # Filter out finished jobs unless --all is set
         if not args.all and results_dir.is_dir():
             # Get 'results' files: strip 'result_' and extension
-            finished_items = {
-                f.stem.replace("result_", "") 
-                for f in results_dir.glob("result_*.mat")
-            }
-            evol_items -= finished_items
+            for f in results_dir.glob("result_*.mat"):
+                hashedName = f.stem.replace("result_", "") 
+                if hashedName in evol_items:
+                    del evol_items[hashedName]
 
         # Find running jobs
         if not args.all:
-            cmd = f'ssh {data['remote']} "sacct --state=RUNNING --format=JobID -n"'
-            output = subprocess.check_output(cmd, shell=True, text=True)
-            job_dict = defaultdict(list)
-            for line in output.strip().splitlines():
-                entry = line.strip()
-                if not entry.endswith(".b+"):
-                    job_id, task_id = entry.split(".")[0].split("_")
-                    job_dict[job_id].append(task_id)
-
-            running_items = set();
             for job_id, task_ids in job_dict.items():
                 # Load json for job
+                targets = [];
                 jobinfo_path = jobinfo_dir / f'job_{job_id}.json'
+                if not os.path.exists(jobinfo_path):
+                    continue;
                 with open(jobinfo_path, 'r') as f:
                     jobinfo = json.load(f)
                     if not isinstance(jobinfo, list):
                         jobinfo = [jobinfo]
                     for task_id in task_ids:
-                        running_items.update(jobinfo[int(task_id)-1]["targets"])
-            evol_items = evol_items.intersection(running_items)
+                        targets.extend(jobinfo[int(task_id)-1]["targets"])
+
+            for key in list(evol_items.keys()):
+                if key not in targets:
+                    del evol_items[key] # Use the del keyword to remove the item
 
         # Format for FZF display
-        for item in sorted(evol_items):
+        for hashedName, functypes in evol_items.items():
+            for functype in functypes:
             # ANSI Green for project name, Reset/White for the job ID
-            line = f"\033[32m{proj:<30}\033[37m {item}"
-            fzf_lines.append(line)
+                header = f"\033[32m{proj} \033[33m{functype}\033[37m"
+                line = f"{header:<50} {hashedName}"
+                fzf_lines.append(line)
 
     if not fzf_lines:
         print("No pending jobs found.")
@@ -116,14 +124,14 @@ def main():
         sys.exit(0)
 
     # 6. Parse Selection and Execute Plot
-    # selection looks like: "project_name                job_id"
+    # selection looks like: "project_name function_type               job_id"
     parts = selection.split()
-    if len(parts) < 2:
+    if len(parts) < 3:
         sys.exit(0)
     
-    selected_proj, selected_job = parts[0], parts[1]
+    selected_proj, selected_func, selected_job = parts[0], parts[1], parts[2]
     # Reconstruct the specific .dat file path
-    sel_path = calc_mu / selected_proj / "evol" / f"RhoV2_{selected_job}.dat"
+    sel_path = calc_mu / selected_proj / "evol" / f"{selected_func}_{selected_job}.dat"
     
     print(f"Selected: {selection}")
     print(f"Path: {sel_path}")
