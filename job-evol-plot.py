@@ -137,9 +137,9 @@ def main():
     print(f"Path: {sel_path}")
 
     # Launch gnuplot in the background
-    gnuplot_script = home / "scripts/ghost-plot.gnuplot"
+    gnuplot_script = home / "scripts/ghost-plot.lua"
     if gnuplot_script.exists():
-        gnuplot_cmd = ["gnuplot", "-c", str(gnuplot_script), str(sel_path)] + unknown_args
+        gnuplot_cmd = [str(gnuplot_script), str(sel_path)] + unknown_args
         subprocess.Popen(gnuplot_cmd)
 
         # 7. Update window title (Sway specific)

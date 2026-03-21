@@ -16,7 +16,8 @@ if (itend < 0) {
 }
 
 # 3. Setup the visual style
-set terminal qt persist
+set terminal qt persist font "Sans,14,Bold"
+set border linewidth 1
 set grid
 
 set xrange [ARG4:ARG5]
