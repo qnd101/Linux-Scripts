@@ -38,7 +38,7 @@ targetcnt_cur=$(run_ssh "find $projPath/results/ -type f | wc -l") || {
 }
 jobids=$(jq -r '.jobs.[0].jobid.[]' "$jobdatapath" )
 for id in $jobids; do
-    res=$(run_ssh "squeue -j $id -r -h -o '%t'")
+    res=$(run_ssh "sacct -j $id -n -X --format=State")
     if [ -n "$res" ]; then
         if [ -z "$states" ]; then
             states="$res"
@@ -52,12 +52,9 @@ done
 # Possible states are:
 # RUNNING, COMPLETED, TIMEOUT/FAILED, PENDING, ...
 total=$(echo "$states" | wc -l)
-pending=$(echo "$states" | grep -cE 'PD')
-running=$(echo "$states" | grep -cE 'R')
-# failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
-failed=0
-completed=$(echo "$states" | grep -cE 'CD|ST')
-unknown=$(echo "$total - $pending - $running - $failed - $completed" | bc)
+running=$(echo "$states" | grep -cE 'RUNNING|PENDING|PREEMPTED')
+failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
+completed=$(echo "$states" | grep -cE 'COMPLETED')
+unknown=$(echo "$total - $running - $failed - $completed" | bc)
 
-echo "󱃣 $targetcnt_cur/$targetcnt  $pending  $running  $completed  $unknown"
-#  $failed 
+echo "󱃣 $targetcnt_cur/$targetcnt  $running  $completed  $failed  $unknown"
