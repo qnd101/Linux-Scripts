@@ -52,9 +52,11 @@ done
 # Possible states are:
 # RUNNING, COMPLETED, TIMEOUT/FAILED, PENDING, ...
 total=$(echo "$states" | wc -l)
-running=$(echo "$states" | grep -cE 'RUNNING|PENDING|PREEMPTED')
-failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
+pending=$(echo "$states" | grep -cE 'PENDING')
+running=$(echo "$states" | grep -cE 'RUNNING|PREEMPTED')
+# failed=$(echo "$states" | grep -cE 'TIMEOUT|FAILED')
+failed=0
 completed=$(echo "$states" | grep -cE 'COMPLETED')
-unknown=$(echo "$total - $running - $failed - $completed" | bc)
+unknown=$(echo "$total - $pending -  $running - $failed - $completed" | bc)
 
-echo "󱃣 $targetcnt_cur/$targetcnt  $running  $completed  $failed  $unknown"
+echo "󱃣 $targetcnt_cur/$targetcnt  $pending  $running  $completed  $unknown"
