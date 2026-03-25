@@ -3,7 +3,7 @@ local lfs = require("lfs")
 
 -- Initialize defaults
 local args = {
-    iter_low = 0,
+    iter_low = 1,
     iter_high = -1,
     x_min = -5,
     x_max = 5,

@@ -9,10 +9,10 @@ N = STATS_blocks
 
 # Set negative values if itstart, itend as positive
 if (itstart < 0) {
-    itstart = N + itstart;
+    itstart = N + 1 + itstart;
 }
 if (itend < 0) {
-    itend = N + itend;
+    itend = N + 1 + itend;
 }
 
 # 3. Setup the visual style
@@ -25,16 +25,21 @@ set yrange [ARG6:ARG7]
 set xlabel ARG8
 set ylabel ARG9
 
-if (itend-itstart>=1) {
+Nshow = itend-itstart+1
+if (Nshow>2) {
     set cbrange [itstart:itend]
     set palette defined (itstart "grey", itend-1 "blue", itend "red")
 }
+else if (Nshow == 2){
+    set cbrange [itstart:itend]
+    set palette defined (itstart "blue", itend "red")
+}
 else {
-    set palette defined (itstart "red", itend "red")
+    set palette defined (0 "red", 1 "red")
 }
 unset colorbox
 
-plot for [i=itstart:itend] datafile index i using 1:3 \
+plot for [i=itstart:itend] datafile index i - 1 using 1:3 \
      with lines lc palette cb i \
      lw 0.5 \
      title ((i == itend) ? ("iter=" . i) : (i == itstart) ? ("iter=" . i) : "" )

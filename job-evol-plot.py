@@ -14,6 +14,7 @@ def main():
     parser = argparse.ArgumentParser(description="Shows info for (not finished) jobs")
     parser.add_argument("-r", "--renew", action="store_true", help="Renew/Sync job files")
     parser.add_argument("-a", "--all", action="store_true", help="Show all jobs")
+    parser.add_argument("-c", "--cvg", action="store_true", help="Show convergence info")
     args, unknown_args = parser.parse_known_args()
 
     # 2. Paths
@@ -78,9 +79,9 @@ def main():
 
         # Find running jobs
         if not args.all:
+            targets = [];
             for job_id, task_ids in job_dict.items():
                 # Load json for job
-                targets = [];
                 jobinfo_path = jobinfo_dir / f'job_{job_id}.json'
                 if not os.path.exists(jobinfo_path):
                     continue;
@@ -137,7 +138,10 @@ def main():
     print(f"Path: {sel_path}")
 
     # Launch gnuplot in the background
-    gnuplot_script = home / "scripts/ghost-plot.lua"
+    if args.cvg:
+        gnuplot_script = home / "scripts/cvg-plot.py"
+    else:
+        gnuplot_script = home / "scripts/ghost-plot.lua"
     if gnuplot_script.exists():
         gnuplot_cmd = [str(gnuplot_script), str(sel_path)] + unknown_args
         subprocess.Popen(gnuplot_cmd)
