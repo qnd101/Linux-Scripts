@@ -1,7 +1,6 @@
 :root {
     font-size: 20px;
 }
-
 body { 
     max-width: 45rem; /* Standard paper-width feel */ 
     margin: 4rem auto;
@@ -48,6 +47,10 @@ div.sourceCode {
 :not(.sourceCode) > code {
     padding: 0.05em 0.4em;
     background: #e6e6fa;
+}
+:not(.sourceCode) > pre > code {
+    display: block;
+    background: #fff0f5;
 }
 
 code {
