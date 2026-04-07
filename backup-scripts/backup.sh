@@ -18,7 +18,7 @@ logfile="$HOME/backup.logs"
     date;
     restic backup "$P1" "$P2" --files-from-raw \
         <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir");
-    restic forget -c --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune;
+    restic forget --group-by host,tags --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune;
 } >> "$logfile" 2>&1
 
 # Autoremove old snapshots
