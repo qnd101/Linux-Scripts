@@ -6,7 +6,10 @@
 jobdatapath=$HOME/remote-jobs.json
 test -e "$jobdatapath" || exit 1
 
-[ "$(jq '.jobs | length' "$jobdatapath")" -gt 0 ] || exit 1
+[ "$(jq '.jobs | length' "$jobdatapath")" -gt 0 ] || {
+    echo "ERR: No jobs!" >&2
+    exit 1
+}
 
 # Parse data out of json file
 # Use only 1st element (for now)

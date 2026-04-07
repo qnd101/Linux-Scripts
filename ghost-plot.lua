@@ -5,10 +5,8 @@ local lfs = require("lfs")
 local args = {
     iter_low = 1,
     iter_high = -1,
-    x_min = -5,
-    x_max = 5,
-    y_min = 0,
-    y_max = 2,
+    x_log = false,
+    y_log = false,
     xlabel = "ω",
     ylabel = "",
 }
@@ -50,20 +48,70 @@ while i <= #arg do
         args.xlabel = val
     elseif flag == "--ylabel" then
         args.ylabel = val
+    elseif flag == "--log" then
+        args.x_log = val:find("-x") and -1 or (val:find("x") and 1 or 0)
+        args.y_log = val:find("-y") and -1 or (val:find("y") and 1 or 0)
     else
-        print('Unknown flag "'.. flag.. '"')
+        print('Unknown flag "' .. flag .. '"')
     end
     i = i + 2
 end
 
--- 2. Construct the shell command to call gnuplot with 6 positional args
-local cmd = string.format("gnuplot -c ~/scripts/ghost-plot.gnuplot '%s' '%d' '%d' '%f' '%f' '%f' '%f' '%s' '%s'",
-    file,
-    args.iter_low, args.iter_high,
-    args.x_min, args.x_max,
-    args.y_min, args.y_max,
-    args.xlabel, args.ylabel
-)
+if not args.x_min or not args.x_max then
+    if args.x_log == 1 then
+        args.x_min = 1e-12
+        args.x_max = 1e4
+    elseif args.x_log == -1 then
+        args.x_max = -1e-12
+        args.x_min = -1e4
+    else
+        args.x_min = -5
+        args.x_max = 5
+    end
+end
+if not args.y_min or not args.y_max then
+    if args.y_log == 1 then
+        args.y_min = 1e-20
+        args.y_max = 1e4
+    elseif args.y_log == -1 then
+        args.y_max = -1e-20
+        args.y_min = -1e4
+    end
+end
 
--- Execute
-os.execute(cmd)
+local gp = assert(io.popen("gnuplot -persist", "w"), "Could not open pipe to gnuplot.")
+
+gp:write(string.format('set xrange [%g:%g]\n', args.x_min, args.x_max));
+
+if args.y_min and args.y_max then
+    gp:write(string.format('set yrange [%g:%g]\n', args.y_min, args.y_max));
+end
+
+if args.x_log == 1 then
+    gp:write([[
+set logscale x
+set format x "10^{%L}"
+    ]])
+elseif args.x_log == -1 then
+    gp:write([[
+set nonlinear x via -log10(-x) inverse -10**(-x)
+set format x "-10^{%L}"
+    ]])
+end
+
+if args.y_log == 1 then
+    gp:write([[
+set logscale y
+set format y "10^{%L}"
+    ]])
+elseif args.y_log == -1 then
+    gp:write([[
+set nonlinear y via -log10(-y) inverse -10**(-y)
+set format y "-10^{%L}"
+    ]])
+end
+
+gp:write(string.format("call '~/scripts/ghost-plot.gnuplot' '%s' '%d' '%d'\n", file, args.iter_low, args.iter_high));
+
+gp:flush() -- Ensure all commands are sent to the process
+gp:close()

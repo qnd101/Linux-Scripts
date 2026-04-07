@@ -20,11 +20,6 @@ set terminal qt persist font "Sans,14,Bold"
 set border linewidth 1
 set grid
 
-set xrange [ARG4:ARG5]
-set yrange [ARG6:ARG7]
-set xlabel ARG8
-set ylabel ARG9
-
 Nshow = itend-itstart+1
 if (Nshow>2) {
     set cbrange [itstart:itend]
