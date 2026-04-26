@@ -12,6 +12,7 @@ fi
 
 # SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 logfile="$HOME/backup.logs"
+max_log_size=$((5 * 1024 * 1024))
 
 {
     echo "";
@@ -20,6 +21,11 @@ logfile="$HOME/backup.logs"
         <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir");
     restic forget --group-by host,tags --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune;
 } >> "$logfile" 2>&1
+
+if [ -f "$logfile" ] && [ "$(wc -c < "$logfile")" -gt "$max_log_size" ]; then
+    temp_log="${logfile}.tmp"
+    tail -c "$max_log_size" "$logfile" > "$temp_log" && mv "$temp_log" "$logfile"
+fi
 
 # Autoremove old snapshots
 # Update cache
