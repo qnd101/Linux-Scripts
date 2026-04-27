@@ -87,6 +87,9 @@ if args.y_min and args.y_max then
     gp:write(string.format('set yrange [%g:%g]\n', args.y_min, args.y_max));
 end
 
+gp:write(string.format('set xlabel "%s"\n', args.xlabel));
+gp:write(string.format('set ylabel "%s"\n', args.ylabel));
+
 if args.x_log == 1 then
     gp:write([[
 set logscale x
