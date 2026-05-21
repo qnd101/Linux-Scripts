@@ -95,7 +95,7 @@ local function getMetaDataFromArxiv(doi)
     if not id then
         return nil, doi .. " is not an arxiv DOI"
     end
-    local api_url = "http://export.arxiv.org/api/query?id_list=" .. id
+    local api_url = "https://export.arxiv.org/api/query?id_list=" .. id
 
     local issuccess, response = getRESTResponse(api_url, false)
 
