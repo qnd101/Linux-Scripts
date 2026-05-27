@@ -25,9 +25,9 @@ local lines = ''
 for doi, paper_data in pairs(cache_data) do
     local author_string = (#paper_data.authors <= 2)
         and table.concat(paper_data.authors, ' & ')
-        or paper_data.authors[1]..' et al.'
+        or paper_data.authors[1] .. ' et al.'
 
-    local shorthand = author_string ..' ('..paper_data.year..')'
+    local shorthand = author_string .. ' (' .. paper_data.year .. ')'
 
     local line = string.format("%-30s %s", shorthand, paper_data.title)
 
@@ -47,28 +47,28 @@ if #output == 0 then
     print "Nothing Selected!"
     return
 end
--- There were some unicode issues related to the author name 
+-- There were some unicode issues related to the author name
 -- ex. tofi changes 'Žitko' from NFC into NFD for better fuzzy matching
 -- Instead of dealing with unicodes directly, we just find the best match
 local doi_selected = assert(tostring(fuzzy.fuzzy_index(output, inv_table)))
 
-local paper_path = paperdb_dir..'/'..string.gsub(doi_selected,'/','_')..'.pdf'
+local paper_path = paperdb_dir .. '/' .. string.gsub(doi_selected, '/', '_') .. '.pdf'
 -- print('Selected: '..doi_selected)
 
--- Create another window for the next action 
-local options = { 'Open', 'Copy Path', 'Copy DOI', 'Copy Path URL', 'Copy DOI URL' }
+-- Create another window for the next action
+local options = { 'Open', 'Copy Path', 'Copy BibTex', 'Copy DOI', 'Copy DOI URL' }
 getInfo = tofi.spawnTofi(options, nil, nil, 'Action: ')
 uv.run()
 
 output = string.gsub(getInfo().output, '\n', '')
 if output == options[1] then
-    os.execute('xdg-open '..paper_path..' &')
+    os.execute('xdg-open ' .. paper_path .. ' &')
 elseif output == options[2] then
-    os.execute('wl-copy '..string.format('"%s"', paper_path)..' &')
+    os.execute('wl-copy ' .. string.format('"file://%s"', paper_path) .. ' -t text/uri-list &')
 elseif output == options[3] then
-    os.execute('wl-copy '..string.format('"%s"', doi_selected)..' &')
+    os.execute('curl -L -H "Accept: text/bibliography; style=bibtex" "https://doi.org/' .. doi_selected .. '" | wl-copy')
 elseif output == options[4] then
-    os.execute('wl-copy '..string.format('"file://%s"', paper_path)..' &')
+    os.execute('wl-copy ' .. string.format('"%s"', doi_selected) .. ' &')
 elseif output == options[5] then
-    os.execute('wl-copy '..string.format('"https://doi.org/%s"', doi_selected)..' &')
+    os.execute('wl-copy ' .. string.format('"https://doi.org/%s"', doi_selected) .. ' &')
 end
