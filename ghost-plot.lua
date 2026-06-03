@@ -71,7 +71,7 @@ if not args.x_min or not args.x_max then
 end
 if not args.y_min or not args.y_max then
     if args.y_log == 1 then
-        args.y_min = 1e-20
+        args.y_min = 1e-16
         args.y_max = 1e4
     elseif args.y_log == -1 then
         args.y_max = -1e-20
@@ -93,6 +93,7 @@ gp:write(string.format('set ylabel "%s"\n', args.ylabel));
 if args.x_log == 1 then
     gp:write([[
 set logscale x
+set xtics 100
 set format x "10^{%L}"
     ]])
 elseif args.x_log == -1 then
@@ -105,6 +106,7 @@ end
 if args.y_log == 1 then
     gp:write([[
 set logscale y
+set ytics 100
 set format y "10^{%L}"
     ]])
 elseif args.y_log == -1 then
