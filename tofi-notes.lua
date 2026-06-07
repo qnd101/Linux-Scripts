@@ -1,7 +1,7 @@
 #!/bin/env luajit
 
 local home_dir = os.getenv("HOME")
-package.path = home_dir..'/scripts/lua/?.lua;' .. package.path
+package.path = home_dir .. '/scripts/lua/?.lua;' .. package.path
 local tofi = require "tofi"
 local uv = require "luv"
 local lfs = require "lfs"
@@ -53,6 +53,14 @@ local base_paths = {
     '/mnt/Data/SNU/'
 }
 
+local ext_cmd = {
+    md = home_dir .. '/scripts/view-md.sh',
+    pdf = 'zathura',
+    -- jpg = 'imv-wayland',
+    -- png = 'imv-wayland',
+    -- svg = 'imv-wayland',
+}
+
 -- Recursive search for all pdf files under directory
 local inv_table = {}
 local tofi_strings = {}
@@ -74,7 +82,7 @@ for _, base_dir in ipairs(base_paths) do
             if not attr then goto continue end
             if attr.mode == 'file' then
                 local extension = getExtension(child)
-                if extension == 'pdf' or extension == 'md' then
+                if ext_cmd[extension] then
                     local relpath = child_dir .. child
                     table.insert(tofi_strings, relpath)
                     inv_table[relpath] = fullpath
@@ -89,15 +97,14 @@ end
 
 -- Set font in pango format
 -- Fallback font for Korean characters!
-local getInfo = tofi.spawnTofi(tofi_strings, 800, nil, 'Notes: ', {'--font=JetBrainsMono,NotoSansMonoCJKkr'})
+local getInfo = tofi.spawnTofi(tofi_strings, 800, nil, 'Notes: ', { '--font=Iosevka,Sarasa Mono CL' })
 uv.run()
 local output = string.gsub(getInfo().output, '\n', '')
 
 if #output == 0 then return end
 local extension = getExtension(output)
-if extension == 'pdf' then
-    os.execute('xdg-open ' .. shellEscape(inv_table[output]) .. ' &')
-elseif extension == 'md' then
-    -- Use my custom script for viewing mardown
-    os.execute(home_dir..'/scripts/view-md.sh ' .. shellEscape(inv_table[output]))
-end
+os.execute(ext_cmd[extension] .. ' ' .. shellEscape(inv_table[output]))
+-- elseif extension == 'md' then
+--     -- Use my custom script for viewing mardown
+--     os.execute(home_dir .. '/scripts/view-md.sh ' .. shellEscape(inv_table[output]))
+-- end

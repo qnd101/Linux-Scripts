@@ -48,8 +48,10 @@ local function writeCache(cache_path, cache)
 end
 
 -- Returns success, result
-local function getRESTResponse(uri, isjson)
-    local proc = io.popen(string.format("wget -O- '%s' 2> /dev/null", uri))
+local function getRESTResponse(uri, isjson, timeout)
+    timeout = timeout or 3;
+    -- 3 seconds of timeout
+    local proc = io.popen(string.format("wget --timeout=%d -O- '%s' 2> /dev/null", timeout, uri))
     -- Check for success of creation & execution
     if not proc then return false, "Failed to start wget process" end
 
