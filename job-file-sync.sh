@@ -17,4 +17,5 @@ rsync -rtvh "$remotedst" "$localdst"
 
 # Resume files are synced in opposite way
 test -z "$nosend" && rsync -rtvh "$localdst/resume/" "$remotedst/resume/"
+test -z "$nosend" && rsync -rtvh "$localdst/trial/" "$remotedst/trial/"
 done

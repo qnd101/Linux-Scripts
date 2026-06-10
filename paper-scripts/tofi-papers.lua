@@ -31,7 +31,7 @@ for doi, paper_data in pairs(cache_data) do
 
     local line = string.format("%-30s %s", shorthand, paper_data.title)
 
-    inv_table[line] = doi
+    inv_table[line] = { doi = doi, author_date = shorthand }
     lines = lines .. line .. '\n'
 end
 
@@ -50,13 +50,14 @@ end
 -- There were some unicode issues related to the author name
 -- ex. tofi changes 'Žitko' from NFC into NFD for better fuzzy matching
 -- Instead of dealing with unicodes directly, we just find the best match
-local doi_selected = assert(tostring(fuzzy.fuzzy_index(output, inv_table)))
+local selected = assert(fuzzy.fuzzy_index(output, inv_table))
+local doi_selected = selected.doi
 
 local paper_path = paperdb_dir .. '/' .. string.gsub(doi_selected, '/', '_') .. '.pdf'
 -- print('Selected: '..doi_selected)
 
 -- Create another window for the next action
-local options = { 'Open', 'Copy Path', 'Copy BibTex', 'Copy DOI', 'Copy DOI URL' }
+local options = { 'Open', 'Copy Path', 'Copy BibTex', 'Copy DOI', 'Copy DOI URL', 'Copy Author+Date' }
 getInfo = tofi.spawnTofi(options, nil, nil, 'Action: ')
 uv.run()
 
@@ -68,7 +69,9 @@ elseif output == options[2] then
 elseif output == options[3] then
     os.execute('curl -L -H "Accept: text/bibliography; style=bibtex" "https://doi.org/' .. doi_selected .. '" | wl-copy')
 elseif output == options[4] then
-    os.execute('wl-copy ' .. string.format('"%s"', doi_selected) .. ' &')
+    os.execute('wl-copy ' .. string.format('"%s"', doi_selected))
 elseif output == options[5] then
-    os.execute('wl-copy ' .. string.format('"https://doi.org/%s"', doi_selected) .. ' &')
+    os.execute('wl-copy ' .. string.format('"https://doi.org/%s"', doi_selected))
+elseif output == options[6] then
+    os.execute('wl-copy "' .. selected.author_date .. '"')
 end
