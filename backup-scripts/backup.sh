@@ -14,12 +14,15 @@ fi
 logfile="$HOME/backup.logs"
 max_log_size=$((5 * 1024 * 1024))
 
+# Check for locks
 {
     echo "";
     date;
     restic backup "$P1" "$P2" --files-from-raw \
         <(fdfind -H0 -a -t f -t l --one-file-system --base-directory "$backup_dir");
-    restic forget --group-by host,tags --keep-hourly 24 --keep-daily 7 --keep-monthly 12 --keep-yearly 2 --prune;
+    restic_status=$?
+    # If locked
+    [ "$restic_status" -eq '11' ] && notify-send -u critical -a 'Backup(restic)' "ERROR" "Repo is Locked!"
 } >> "$logfile" 2>&1
 
 if [ -f "$logfile" ] && [ "$(wc -c < "$logfile")" -gt "$max_log_size" ]; then
@@ -27,6 +30,5 @@ if [ -f "$logfile" ] && [ "$(wc -c < "$logfile")" -gt "$max_log_size" ]; then
     tail -c "$max_log_size" "$logfile" > "$temp_log" && mv "$temp_log" "$logfile"
 fi
 
-# Autoremove old snapshots
 # Update cache
 "$HOME/scripts/backup-scripts/update-backup-cache.sh"
